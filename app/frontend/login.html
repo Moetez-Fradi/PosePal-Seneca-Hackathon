@@ -29,7 +29,6 @@
     p { margin-top: 15px; font-size: 14px; }
     a { color: #28a745; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .status { margin-top: 10px; color: red; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -41,14 +40,10 @@
       <button type="submit">Login</button>
     </form>
     <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
-    <div class="status" id="status"></div>
   </div>
 
   <script>
-    const form = document.getElementById("loginForm");
-    const status = document.getElementById("status");
-
-    form.addEventListener("submit", async (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
@@ -57,17 +52,17 @@
         const res = await fetch("http://localhost:8000/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-          credentials: "include"
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
-        if (res.ok) {
+        if (data.status === "ok") {
+          localStorage.setItem("access_token", data.access_token);
           window.location.href = "dashboard.html";
         } else {
-          status.innerText = data.detail || "Login failed";
+          alert(data.msg);
         }
       } catch (err) {
-        status.innerText = "Failed to connect to backend";
+        alert("Login failed. Check backend connection.");
       }
     });
   </script>
