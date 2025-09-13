@@ -3,3 +3,4 @@ squat.json
 venv/
 __pycache__/
 .python-version
+.env
