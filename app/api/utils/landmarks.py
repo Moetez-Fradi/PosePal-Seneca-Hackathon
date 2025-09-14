@@ -1,4 +1,29 @@
 import numpy as np
+import mediapipe as mp
+from mediapipe import solutions as mp_solutions
+mp_drawing = mp.solutions.drawing_utils
+DrawingSpec = mp_solutions.drawing_utils.DrawingSpec
+
+RED    = (0,   0, 255)
+ORANGE = (0, 165, 255)
+GREEN  = (0, 255,   0)
+GRAY   = (160,160,160)
+
+SETUP_KEYWORDS = (
+    "get on the floor",
+    "step back; show knees/ankles",
+    "hold a straight plank",
+    "step back; show knees and ankles",
+)
+
+def is_setup_issue(mistakes: list[str]) -> bool:
+    low = " | ".join(m.lower() for m in mistakes)
+    return any(k in low for k in SETUP_KEYWORDS)
+
+def skeleton_specs(color_bgr):
+    lm_spec  = DrawingSpec(color=color_bgr, thickness=2, circle_radius=2)
+    conn_spec= DrawingSpec(color=color_bgr, thickness=3)
+    return lm_spec, conn_spec
 
 def normalize_landmarks(landmarks: np.ndarray):
     left_hip = landmarks[23][:3]

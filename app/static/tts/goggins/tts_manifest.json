@@ -1,0 +1,15 @@
+{
+  "GET_ON_FLOOR": "/static/tts/goggins/get_on_floor.wav",
+  "HOLD_PLANK": "/static/tts/goggins/hold_plank.wav",
+  "HANDS_CLOSER": "/static/tts/goggins/hands_closer.wav",
+  "HANDS_WIDER": "/static/tts/goggins/hands_wider.wav",
+  "HANDS_UNDER_SHOULDERS": "/static/tts/goggins/hands_under_shoulders.wav",
+  "LIFT_HIPS": "/static/tts/goggins/lift_hips.wav",
+  "LOWER_HIPS": "/static/tts/goggins/lower_hips.wav",
+  "GO_LOWER": "/static/tts/goggins/go_lower.wav",
+  "STEP_BACK": "/static/tts/goggins/step_back.wav",
+  "SQUAT_GO_DEEPER": "/static/tts/goggins/squat_go_deeper.wav",
+  "SQUAT_CHEST_UP": "/static/tts/goggins/squat_chest_up.wav",
+  "SQUAT_KNEE_OUT_LEFT": "/static/tts/goggins/squat_knee_out_left.wav",
+  "SQUAT_KNEE_OUT_RIGHT": "/static/tts/goggins/squat_knee_out_right.wav"
+}
