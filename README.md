@@ -30,6 +30,7 @@
 -  **Moetez** – Fullstack lead, AI & Computer Vision
 -  **Ghassen** – Backend developer, UI/UX & dashboard design 
 -  **Amin** – TTS integration & LLM orchestration
+-  **Myriam** - Our cute motivator and vibecoder
 
 ---
 
