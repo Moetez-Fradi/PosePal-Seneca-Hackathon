@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    .navbar { background: #222; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .navbar button { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; }
+    .content { display: flex; flex-wrap: wrap; padding: 20px; gap: 20px; }
+    .dashboard-card { background: white; padding: 20px; border-radius: 12px; flex: 1 1 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2>🏃 Fitness Dashboard</h2>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <div class="content">
+    <div class="dashboard-card">
+      <h3>Username</h3>
+      <p id="username"></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>Email</h3>
+      <p id="email"></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>Total Workouts</h3>
+      <p id="total_workouts"></p>
+    </div>
+
+    <div class="dashboard-card">
+      <h3>Workout History</h3>
+      <ul id="workouts"></ul>
+    </div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:8000/auth/dashboard", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          alert("Session expired. Please login again.");
+          localStorage.removeItem("access_token");
+          window.location.href = "login.html";
+          return;
+        }
+        const data = await res.json();
+        document.getElementById("username").innerText = data.username;
+        document.getElementById("email").innerText = data.email;
+        document.getElementById("total_workouts").innerText = data.total_workouts;
+
+        const workoutList = document.getElementById("workouts");
+        workoutList.innerHTML = "";
+        data.workouts.forEach(w => {
+          const li = document.createElement("li");
+          li.textContent = `${w.exercise}: ${w.repetitions} reps (Persona: ${w.persona})`;
+          workoutList.appendChild(li);
+        });
+      } catch (err) {
+        alert("Failed to load dashboard.");
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("access_token");
+      window.location.href = "login.html";
+    });
+
+    window.onload = loadDashboard;
+  </script>
+</body>
+</html>
