@@ -18,7 +18,7 @@
 ## Tech Stack
 - **Backend:** Python + Fastapi
 - **Computer Vision:** Mediapipe + OpenCV  
-- **Frontend:** Vanilla JS + HTML5 + CSS
+- **Frontend:** Vanilla JS + HTML5 + Tailwind CSS
 - **Database:** MongoDB
 - **Authentication:** JWT + FastAPI cookies  
 - **Voice Feedback:** Local TTS (Piper)
@@ -60,15 +60,15 @@ This bridges the gap between **professional coaching** and **at-home fitness**, 
 
 ### 1. Clone repo
 ```bash
-git https://github.com/Moetez-Fradi/PosePal-Seneca-Hackathon.git
-cd posepa
+git clone https://github.com/Moetez-Fradi/PosePal-Seneca-Hackathon.git
+cd PosePal-Seneca-Hackathon
 ```
 
 ### 2. Backend Setup
 
 ```bash
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate # for windows: source venv/Scripts/activate 
 pip install -r requirements.txt
 cp .env.example .env # add your api key and database url...
 uvicorn app.api.main:app --reload --workers 1
