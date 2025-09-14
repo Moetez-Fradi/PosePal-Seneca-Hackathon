@@ -146,7 +146,7 @@ Visual insights help track progress and improvement trends, keeping you aware.
 
 
 
-## Video deom
+## Video demo
 
 https://drive.google.com/file/d/1hYEzX9RnhdUIdgJpi4nmu2S1jBEnz5Bv/view?usp=sharing
 
