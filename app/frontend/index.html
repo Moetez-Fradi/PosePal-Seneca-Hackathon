@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Coach</title>
   <style>
     body { background: #111; color: #eee; text-align: center; font-family: sans-serif; }
@@ -10,9 +11,16 @@
     #video-container { display: flex; justify-content: center; margin-top: 20px; }
     #video { max-width: 1200px; width: 100%; height: auto; }
     #bar { margin-top: 8px; font-size: 0.9rem; color: #ccc; }
+    .navbar { background: #222; color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .navbar button { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; }
   </style>
 </head>
 <body>
+  <div class="navbar">
+    <h2>🤖 AI Coach</h2>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
   <h1>AI Coach</h1>
 
   <form id="settings" onsubmit="event.preventDefault(); applySettings();">
@@ -31,33 +39,75 @@
   </div>
 
   <div id="bar">
-    <button onclick="requestFeedback()">🔊 Last-set feedback</button>
-  </div>
+  <button onclick="requestFeedback()">🔊 Last-set feedback</button>
+  <button onclick="saveWorkouts()">💾 Save Workouts</button>
+</div>
 
   <script>
     const BASE = "http://localhost:8000";
     const audioEl = new Audio();
-
     let feedbackTimer = null;
     let lastFeedbackSeq = -1;
 
-    function stopFeedbackPolling() {
-      if (feedbackTimer) {
-        clearInterval(feedbackTimer);
-        feedbackTimer = null;
-      }
+    async function saveWorkouts() {
+      const res = await authFetch(`${BASE}/workouts/flush`, { method: "POST" });
+      if (!res) return;
+      const data = await res.json();
+      alert(`✅ Saved ${data.saved || 0} workouts to DB`);
     }
 
+    // ---------- AUTH CHECK ----------
+    function requireAuth() {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        window.location.href = "login.html";
+        return null;
+      }
+      return token;
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("access_token");
+      window.location.href = "login.html";
+    });
+
+    // ---------- HELPERS WITH AUTH ----------
+    async function authFetch(url, options = {}) {
+      const token = requireAuth();
+      if (!token) return;
+
+      const opts = {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          "Authorization": `Bearer ${token}`
+        }
+      };
+
+      const res = await fetch(url, opts);
+      if (res.status === 401) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem("access_token");
+        window.location.href = "login.html";
+        return null;
+      }
+      return res;
+    }
+
+    // ---------- APP BEHAVIOR ----------
     async function applySettings() {
       const exercise = document.getElementById("exercise").value;
       try {
-        const res = await fetch(`${BASE}/set_config?exercise=${exercise}`);
+        const res = await authFetch(`${BASE}/set_config?exercise=${exercise}`);
+        if (!res) return;
         const data = await res.json();
 
         if (data.status === "ok") {
           document.getElementById("status").innerText = `✅ Config set: ${data.exercise}`;
           const videoEl = document.getElementById("video");
-          videoEl.src = `${BASE}/video?` + new Date().getTime();
+          // Attach token as query param so backend can validate video stream
+          const token = localStorage.getItem("access_token");
+          videoEl.src = `${BASE}/video?token=${token}&t=` + new Date().getTime();
           videoEl.style.display = "block";
           startCuePolling();
           startFeedbackPolling();
@@ -71,9 +121,9 @@
 
     async function pollCoachCue() {
       try {
-        const res = await fetch(`${BASE}/coach_cue`);
+        const res = await authFetch(`${BASE}/coach_cue`);
+        if (!res) return;
         const data = await res.json();
-
         if (data.url) {
           console.log("🎧 Cue:", data);
           audioEl.src = BASE + data.url;
@@ -90,7 +140,8 @@
 
     async function requestFeedback() {
       try {
-        const res = await fetch(`${BASE}/ai/feedback`, { method: "POST" });
+        const res = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
+        if (!res) return;
         const data = await res.json();
         if (data.audio_url) {
           console.log("📣 Feedback:", data.text);
@@ -106,15 +157,17 @@
 
     function startFeedbackPolling() {
       if (feedbackTimer) return;
-
       feedbackTimer = setInterval(async () => {
         try {
-          const s = await fetch(`${BASE}/ai/feedback/status`).then(r => r.json());
+          const res = await authFetch(`${BASE}/ai/feedback/status`);
+          if (!res) return;
+          const s = await res.json();
           if (!s.ready) return;
           if (s.seq <= lastFeedbackSeq) return;
 
-          const res = await fetch(`${BASE}/ai/feedback`, { method: "POST" });
-          const data = await res.json();
+          const res2 = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
+          if (!res2) return;
+          const data = await res2.json();
           lastFeedbackSeq = s.seq;
 
           if (data && data.audio_url) {
@@ -128,6 +181,16 @@
         }
       }, 1000);
     }
+
+    function stopFeedbackPolling() {
+      if (feedbackTimer) {
+        clearInterval(feedbackTimer);
+        feedbackTimer = null;
+      }
+    }
+
+    // Run auth check on load
+    window.onload = requireAuth;
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@ from typing import List, Dict
 
 CURRENT_CUES: List[str] = []
 
-PERSONA: str = "goggins"
+PERSONA: str | None = None
 
 def set_persona(name: str):
     global PERSONA
@@ -27,3 +27,9 @@ REST_START_TIME: float = 0.0
 
 FEEDBACK_READY: bool = False
 FEEDBACK_SEQ: int = 0 
+
+CURRENT_USER: str | None = None
+LAST_SET_SUMMARY: dict | None = None
+LAST_REST_SUMMARY: dict | None = None
+
+WORKOUTS_BUFFER = []
