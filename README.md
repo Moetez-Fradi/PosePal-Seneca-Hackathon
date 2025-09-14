@@ -142,3 +142,15 @@ Visual insights help track progress and improvement trends, keeping you aware.
 - Gamification – Streaks, badges, and progress milestones.
 
 - Expanded CV Models – Add plank, lunges, burpees, etc.
+
+
+
+
+## Video deom
+
+https://drive.google.com/file/d/1hYEzX9RnhdUIdgJpi4nmu2S1jBEnz5Bv/view?usp=sharing
+
+
+
+
+
