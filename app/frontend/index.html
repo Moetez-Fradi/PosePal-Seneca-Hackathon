@@ -162,49 +162,62 @@
       setInterval(pollCoachCue, 1000);
     }
 
-    async function requestFeedback() {
-      try {
-        const res = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
-        if (!res) return;
-        const data = await res.json();
-        if (data.audio_url) {
-          console.log("📣 Feedback:", data.text);
-          const a = new Audio(BASE + data.audio_url);
-          a.play();
-        } else {
-          alert("No finished set to summarize yet.");
-        }
-      } catch (e) {
-        console.error("feedback error", e);
+async function requestFeedback() {
+  try {
+    const res = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
+    if (!res) return;
+    const data = await res.json();
+    console.log("feedback:", data);
+
+    if (data.audio_url) {
+      const a = new Audio(BASE + data.audio_url);
+      a.play();
+    } else if (data.text) {
+      // Fallback to browser TTS so users still hear feedback
+      if ("speechSynthesis" in window) {
+        const u = new SpeechSynthesisUtterance(data.text);
+        // optional: persona-based voice selection if you want
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } else {
+        alert(data.text);
       }
+    } else {
+      alert("No finished set to summarize yet.");
     }
+  } catch (e) {
+    console.error("feedback error", e);
+  }
+}
 
     function startFeedbackPolling() {
-      if (feedbackTimer) return;
-      feedbackTimer = setInterval(async () => {
-        try {
-          const res = await authFetch(`${BASE}/ai/feedback/status`);
-          if (!res) return;
-          const s = await res.json();
-          if (!s.ready) return;
-          if (s.seq <= lastFeedbackSeq) return;
+  if (feedbackTimer) return;
+  feedbackTimer = setInterval(async () => {
+    try {
+      const res = await authFetch(`${BASE}/ai/feedback/status`);
+      if (!res) return;
+      const s = await res.json();
+      if (!s.ready) return;
+      if (s.seq <= lastFeedbackSeq) return;
+      console.log("Feedback ready, seq", s);
 
-          const res2 = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
-          if (!res2) return;
-          const data = await res2.json();
-          lastFeedbackSeq = s.seq;
+      const res2 = await authFetch(`${BASE}/ai/feedback`, { method: "POST" });
+      if (!res2) return;
+      const data = await res2.json();
+      lastFeedbackSeq = s.seq;
+      console.log("posting /ai/feedback…", data);
 
-          if (data && data.audio_url) {
-            const a = new Audio(BASE + data.audio_url);
-            a.play();
-          }
-
-          stopFeedbackPolling();
-        } catch (e) {
-          console.warn("feedback poll error", e);
-        }
-      }, 1000);
+      if (data && data.audio_url) {
+        const a = new Audio(BASE + data.audio_url);
+        a.play();
+      }
+      // keep polling for the next set → rest; no stop here
+    } catch (e) {
+      console.warn("feedback poll error", e);
     }
+  }, 1000);
+}
+
 
     function stopFeedbackPolling() {
       if (feedbackTimer) {

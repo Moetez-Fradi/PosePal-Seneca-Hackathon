@@ -107,7 +107,7 @@ def generate_frames():
                         if suggestion in ("squat", "pushup"):
                             rest_duration = time.monotonic() - state.REST_START_TIME
                             state.LAST_REST_SUMMARY = {
-                            "exercice" : "rest",
+                            "exercise" : "rest",
                                 "started_at": state.REST_START_TIME,
                                 "duration": rest_duration,
                                 "ended_at": time.monotonic(),
@@ -162,6 +162,8 @@ def generate_frames():
                             "duration": summary["duration"],
                             "reps": summary["reps"]
                         })
+                        state.FEEDBACK_SEQ += 1
+                        state.FEEDBACK_READY = True
                         state.LAST_SET_SUMMARY = summary
                         state.FEEDBACK_SEQ += 1
                         state.FEEDBACK_READY = True

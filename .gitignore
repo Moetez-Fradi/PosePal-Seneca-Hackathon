@@ -8,3 +8,5 @@ __pycache__/
 /scripts/static/tts/
 /scripts/app
 piper-voices/
+**/__init__.py
+**/.gitkeep
