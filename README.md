@@ -71,7 +71,7 @@ cd PosePal-Seneca-Hackathon
 python -m venv venv
 source venv/bin/activate # for windows: source venv/Scripts/activate 
 pip install -r requirements.txt
-cp .env.example .env # add your api key and database url...
+cp .env.exemple .env # add your api key and database url...
 uvicorn app.api.main:app --reload --workers 1
 ```
 
