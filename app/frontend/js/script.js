@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Handle Login
+
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", (e) => {
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle Signup
+
   const signupForm = document.getElementById("signupForm");
   if (signupForm) {
     signupForm.addEventListener("submit", (e) => {
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle Logout
+
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
@@ -36,14 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Protect dashboard page
+ 
   if (window.location.pathname.endsWith("dashboard.html")) {
     if (localStorage.getItem("loggedIn") !== "true") {
       window.location.href = "login.html";
     }
   }
 
-  // Fake chart for dashboard
+
   if (document.getElementById("performanceChart")) {
     const ctx = document.getElementById("performanceChart").getContext("2d");
     new Chart(ctx, {

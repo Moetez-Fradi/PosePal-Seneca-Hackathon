@@ -17,9 +17,7 @@ CUE_TEXT_TO_KEY = [
 
 
 def cue_key_from_text(msg: str) -> str | None:
-    """
-    Match exactly what the analyzers return (case + punctuation insensitive).
-    """
+  
     low = msg.strip().lower()
     for needle, key in CUE_TEXT_TO_KEY:
         if low == needle:

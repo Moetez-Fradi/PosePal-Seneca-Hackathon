@@ -10,7 +10,7 @@ router = APIRouter(prefix="/workouts", tags=["workouts"])
 
 
 def format_timestamp(ts: float) -> str:
-    """Convert Unix timestamp → human-readable string."""
+
     return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -50,10 +50,7 @@ async def save_workout(
 
 @router.post("/flush")
 async def flush_workouts(user: dict = Depends(get_current_user)):
-    """
-    Flush all buffered workouts from memory → DB.
-    Ensures created_at is filled for each workout.
-    """
+ 
     if not state.WORKOUTS_BUFFER:
         return {"status": "empty", "msg": "No workouts to save"}
 
