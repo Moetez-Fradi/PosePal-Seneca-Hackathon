@@ -78,6 +78,43 @@
       border-left: 3px solid var(--secondary);
       padding-left: 8px;
     }
+      .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 30px;
+    margin-top: 20px;
+  }
+
+  .filter-container label {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .filter-container input[type="date"] {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: var(--surface);
+    color: var(--text-primary);
+  }
+
+  .filter-container button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: var(--primary);
+    color: #fff;
+    transition: opacity 0.2s;
+  }
+
+  .filter-container button:hover {
+    opacity: 0.85;
+  }
 
     #total_workouts {
       font-size: 2rem;
@@ -127,9 +164,14 @@
     <h2>Fitness Dashboard</h2>
     <div class="actions">
       <button id="workoutBtn" onclick="window.location.href='index.html'">Workout</button>
-      <button id="themeToggle">Theme</button>
+      <button id="themeToggle">Toggle Theme</button>
       <button id="logoutBtn">Logout</button>
     </div>
+  </div>
+  <div class="filter-container">
+    <label for="workoutDate">Select Date:</label>
+    <input type="date" id="workoutDate" />
+    <button id="filterBtn" onclick="loadDashboard()">Filter</button>
   </div>
 
   <div class="content">
@@ -160,6 +202,7 @@
   </div>
 
   <script>
+    let progressChartInstance=null;
     async function loadDashboard() {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -186,22 +229,28 @@
         workoutList.innerHTML = "";
         let labels = [];
         let reps = [];
-
+        let selected_date=document.getElementById("workoutDate").value;
         data.workouts.forEach(w => {
           // Convert Unix timestamp (seconds) to JS Date
+          if (!w.created_at || w.created_at===undefined) return;
           const workoutDate = new Date(w.created_at * 1000); 
-          const formattedDate = workoutDate.toLocaleString(); // human-readable
+          const formattedDate = workoutDate.toISOString().split('T')[0]; // human-readable
 
           const li = document.createElement("li");
-          li.textContent = `${w.exercise}: ${w.reps} reps (${formattedDate})`;
+          if(formattedDate===selected_date){
+            li.textContent = `${w.exercise}: ${w.reps} reps`;
           workoutList.appendChild(li);
-
           labels.push(w.exercise);
           reps.push(w.reps);
+          }
+          
+
+          
         });
+        if (progressChartInstance) progressChartInstance.destroy();
 
         const ctx = document.getElementById("progressChart").getContext("2d");
-        new Chart(ctx, {
+        progressChartInstance=new Chart(ctx, {
           type: "bar",
           data: {
             labels: labels,
@@ -217,7 +266,7 @@
           }
         });
       } catch (err) {
-        alert("Failed to load dashboard.");
+        alert("Failed to load dashboard."+err);
       }
     }
 
