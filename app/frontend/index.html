@@ -1,57 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>AI Coach</title>
   <style>
     body { background: #111; color: #eee; text-align: center; font-family: sans-serif; }
     img { max-width: 90%; border: 4px solid #444; border-radius: 10px; margin-top: 20px; }
     select, button { margin: 10px; padding: 8px; font-size: 1rem; }
-    video {
-      width: 100%;          /* fills the container */
-      max-width: 1200px;    /* limit to 1200px wide */
-      height: auto;         /* preserve aspect ratio */
-    }
+    #video-container { display: flex; justify-content: center; margin-top: 20px; }
+    #video { max-width: 1200px; width: 100%; height: auto; }
+    #bar { margin-top: 8px; font-size: 0.9rem; color: #ccc; }
   </style>
 </head>
 <body>
   <h1>AI Coach</h1>
+
   <form id="settings" onsubmit="event.preventDefault(); applySettings();">
-    <label for="exercise">Choose exercise:</label>
+    <label for="exercise">Choose starting exercise:</label>
     <select id="exercise">
       <option value="squat">Squat</option>
       <option value="pushup">Push-up</option>
-      <option value="lunge">Lunge</option>
     </select>
     <button type="submit">Start</button>
   </form>
 
   <div id="status">⚙️ Waiting for selection...</div>
 
-  <img id="video" style="display:none;" />
+  <div id="video-container">
+    <img id="video" style="display:none;" />
+  </div>
+
+  <div id="bar">
+    <button onclick="requestFeedback()">🔊 Last-set feedback</button>
+  </div>
 
   <script>
+    const BASE = "http://localhost:8000";
+    const audioEl = new Audio();
+
+    let feedbackTimer = null;
+    let lastFeedbackSeq = -1;
+
+    function stopFeedbackPolling() {
+      if (feedbackTimer) {
+        clearInterval(feedbackTimer);
+        feedbackTimer = null;
+      }
+    }
+
     async function applySettings() {
       const exercise = document.getElementById("exercise").value;
-
       try {
-        const res = await fetch(`http://localhost:8000/set_config?exercise=${exercise}`);
+        const res = await fetch(`${BASE}/set_config?exercise=${exercise}`);
         const data = await res.json();
 
         if (data.status === "ok") {
-          document.getElementById("status").innerText =
-            `✅ Config set: ${data.exercise}`;
-
-          // refresh video stream (cache-bust with timestamp)
+          document.getElementById("status").innerText = `✅ Config set: ${data.exercise}`;
           const videoEl = document.getElementById("video");
-          videoEl.src = "http://localhost:8000/video?" + new Date().getTime();
+          videoEl.src = `${BASE}/video?` + new Date().getTime();
           videoEl.style.display = "block";
+          startCuePolling();
+          startFeedbackPolling();
         } else {
           document.getElementById("status").innerText = "❌ " + data.msg;
         }
       } catch (err) {
         document.getElementById("status").innerText = "❌ Failed to connect to backend.";
       }
+    }
+
+    async function pollCoachCue() {
+      try {
+        const res = await fetch(`${BASE}/coach_cue`);
+        const data = await res.json();
+
+        if (data.url) {
+          console.log("🎧 Cue:", data);
+          audioEl.src = BASE + data.url;
+          audioEl.play();
+        }
+      } catch (err) {
+        console.error("Cue polling failed", err);
+      }
+    }
+
+    function startCuePolling() {
+      setInterval(pollCoachCue, 1000);
+    }
+
+    async function requestFeedback() {
+      try {
+        const res = await fetch(`${BASE}/ai/feedback`, { method: "POST" });
+        const data = await res.json();
+        if (data.audio_url) {
+          console.log("📣 Feedback:", data.text);
+          const a = new Audio(BASE + data.audio_url);
+          a.play();
+        } else {
+          alert("No finished set to summarize yet.");
+        }
+      } catch (e) {
+        console.error("feedback error", e);
+      }
+    }
+
+    function startFeedbackPolling() {
+      if (feedbackTimer) return;
+
+      feedbackTimer = setInterval(async () => {
+        try {
+          const s = await fetch(`${BASE}/ai/feedback/status`).then(r => r.json());
+          if (!s.ready) return;
+          if (s.seq <= lastFeedbackSeq) return;
+
+          const res = await fetch(`${BASE}/ai/feedback`, { method: "POST" });
+          const data = await res.json();
+          lastFeedbackSeq = s.seq;
+
+          if (data && data.audio_url) {
+            const a = new Audio(BASE + data.audio_url);
+            a.play();
+          }
+
+          stopFeedbackPolling();
+        } catch (e) {
+          console.warn("feedback poll error", e);
+        }
+      }, 1000);
     }
   </script>
 </body>

@@ -3,3 +3,8 @@ squat.json
 venv/
 __pycache__/
 .python-version
+.env
+/app/static/tmp/
+/scripts/static/tts/
+/scripts/app
+piper-voices/

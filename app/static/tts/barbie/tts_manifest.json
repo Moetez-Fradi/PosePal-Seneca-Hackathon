@@ -1,0 +1,15 @@
+{
+  "GET_ON_FLOOR": "/static/tts/barbie/get_on_floor.wav",
+  "HOLD_PLANK": "/static/tts/barbie/hold_plank.wav",
+  "HANDS_CLOSER": "/static/tts/barbie/hands_closer.wav",
+  "HANDS_WIDER": "/static/tts/barbie/hands_wider.wav",
+  "HANDS_UNDER_SHOULDERS": "/static/tts/barbie/hands_under_shoulders.wav",
+  "LIFT_HIPS": "/static/tts/barbie/lift_hips.wav",
+  "LOWER_HIPS": "/static/tts/barbie/lower_hips.wav",
+  "GO_LOWER": "/static/tts/barbie/go_lower.wav",
+  "STEP_BACK": "/static/tts/barbie/step_back.wav",
+  "SQUAT_GO_DEEPER": "/static/tts/barbie/squat_go_deeper.wav",
+  "SQUAT_CHEST_UP": "/static/tts/barbie/squat_chest_up.wav",
+  "SQUAT_KNEE_OUT_LEFT": "/static/tts/barbie/squat_knee_out_left.wav",
+  "SQUAT_KNEE_OUT_RIGHT": "/static/tts/barbie/squat_knee_out_right.wav"
+}
