@@ -1,8 +1,16 @@
-from fastapi import APIRouter, HTTPException, Response, Depends, Cookie
+from fastapi import APIRouter, HTTPException, Response, Depends, Header
 from app.api.utils.db import users_collection
 from app.api.utils.auth import hash_password, verify_password, create_access_token, decode_access_token
 from app.api.models.user import UserSignup
+from pydantic import BaseModel
+import app.api.utils.state as state
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class PersonaChoice(BaseModel):
+    persona: str
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,37 +36,33 @@ async def signup(user: UserSignup):
 
 # ---------- Login ----------
 @router.post("/login")
-def login(response: Response, username: str, password: str):
-    user = users_collection.find_one({"username": username})
-    if not user or not verify_password(password, user["password"]):
+async def login(data: LoginRequest, response: Response):
+    user = await users_collection.find_one({"username": data.username})
+    if not user or not verify_password(data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"username": username})
-    response.set_cookie(key="access_token", value=token, httponly=True)
+    token = create_access_token({"username": data.username})
 
     first_time = user.get("persona", "default") == "default"
+    state.PERSONA = user.get("persona", "default")
+    state.CURRENT_USER = data.username
 
+    # ✅ Return token in response (use in frontend with Bearer)
     return {
         "status": "ok",
         "msg": "Logged in successfully",
-        "first_time": first_time 
+        "first_time": first_time,
+        "access_token": token
     }
 
 
-
-# ---------- Logout ----------
-@router.post("/logout", response_model=dict)
-def logout(response: Response):
-    response.delete_cookie("access_token")
-    return {"status": "ok", "msg": "Logged out"}
-
-
 # ---------- Dependency ----------
-async def get_current_user(access_token: str = Cookie(None)):
-    if not access_token:
+async def get_current_user(Authorization: str = Header(None)):
+    if not Authorization or not Authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    payload = decode_access_token(access_token)
+    token = Authorization.split(" ")[1]
+    payload = decode_access_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -72,7 +76,7 @@ async def get_current_user(access_token: str = Cookie(None)):
 
 # ---------- Dashboard ----------
 @router.get("/dashboard")
-def dashboard(user: dict = Depends(get_current_user)):
+async def dashboard(user: dict = Depends(get_current_user)):
     workouts = user.get("workouts", [])
     return {
         "username": user["username"],
@@ -83,13 +87,16 @@ def dashboard(user: dict = Depends(get_current_user)):
     }
 
 
+# ---------- Set Persona ----------
 @router.post("/set_persona")
-def set_persona(persona: str, user: dict = Depends(get_current_user)):
-    if persona not in ["david_goggins", "barbie", "default"]:
+async def set_persona(data: PersonaChoice, user: dict = Depends(get_current_user)):
+    persona = data.persona
+    if persona not in ["goggins", "barbie", "default"]:
         raise HTTPException(status_code=400, detail="Invalid persona choice")
 
-    users_collection.update_one(
+    await users_collection.update_one(
         {"username": user["username"]},
         {"$set": {"persona": persona}}
     )
+    state.PERSONA = persona
     return {"status": "ok", "msg": f"Persona set to {persona}"}

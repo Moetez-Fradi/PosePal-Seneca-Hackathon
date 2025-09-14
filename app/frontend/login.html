@@ -57,7 +57,7 @@
         const data = await res.json();
         if (data.status === "ok") {
           localStorage.setItem("access_token", data.access_token);
-          window.location.href = "dashboard.html";
+          window.location.href = "persona.html";
         } else {
           alert(data.msg);
         }

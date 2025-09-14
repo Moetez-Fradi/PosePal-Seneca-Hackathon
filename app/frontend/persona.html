@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Persona</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+    .container {
+      background: #222;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      width: 350px;
+      text-align: center;
+    }
+    h2 { margin-bottom: 20px; }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+      transition: background 0.3s;
+    }
+    .default { background: #007bff; }
+    .goggins { background: #dc3545; }
+    .barbie { background: #e83e8c; }
+    button:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Choose Your Persona</h2>
+    <button class="default" onclick="selectPersona('default')">Default</button>
+    <button class="goggins" onclick="selectPersona('goggins')">Goggins</button>
+    <button class="barbie" onclick="selectPersona('barbie')">Barbie</button>
+  </div>
+
+  <script>
+    function selectPersona(persona) {
+      // store locally
+      localStorage.setItem("persona", persona);
+
+      // optional: send to backend
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        fetch("http://localhost:8000/auth/set_persona", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ persona })
+        }).catch(err => console.warn("Persona set failed:", err));
+      }
+
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

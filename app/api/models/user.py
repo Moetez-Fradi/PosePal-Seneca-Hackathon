@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
+import time
 
 
 # -------- Request Models --------
@@ -16,9 +17,12 @@ class UserLogin(BaseModel):
 
 # -------- Response Models --------
 class Workout(BaseModel):
-    name: str
-    duration: int
+    name: str                 # "squat", "pushup", "rest"
+    duration: int             # in seconds
     persona: Optional[str] = "default"
+    reps: Optional[int] = None
+    ended_at: Optional[float] = None
+    created_at: float = Field(default_factory=lambda: time.time())
 
 
 class UserDashboard(BaseModel):
