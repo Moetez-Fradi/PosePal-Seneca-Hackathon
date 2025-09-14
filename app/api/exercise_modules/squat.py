@@ -38,10 +38,7 @@ def _in_frame_xy(x, y, margin):
 
 
 def _legs_visible(raw_landmarks, vis_thr, margin):
-    """
-    raw_landmarks: np.ndarray (33, 4) [x,y,z,visibility] in image coords (0..1).
-    Easier gate: need at least 2 of {knees, ankles} visible & in-frame.
-    """
+
     ok = 0
     for i in _REQUIRED_LEG_IDXS:
         x, y, _, v = raw_landmarks[i]
@@ -51,10 +48,7 @@ def _legs_visible(raw_landmarks, vis_thr, margin):
 
 
 def analyze_squat(norm, smoothed, deques, thresholds, raw_landmarks):
-    """
-    Pass raw_landmarks (33x4) so we can check visibility.
-    If legs aren't visible enough, emit a single setup cue and skip rules.
-    """
+
     mistakes = []
 
     if not _legs_visible(raw_landmarks, thresholds["VIS_THR"], thresholds["INFRAME_MARGIN"]):

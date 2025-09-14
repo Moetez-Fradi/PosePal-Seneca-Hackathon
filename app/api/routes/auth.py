@@ -47,7 +47,6 @@ async def login(data: LoginRequest, response: Response):
     state.PERSONA = user.get("persona", "default")
     state.CURRENT_USER = data.username
 
-    # ✅ Return token in response (use in frontend with Bearer)
     return {
         "status": "ok",
         "msg": "Logged in successfully",
