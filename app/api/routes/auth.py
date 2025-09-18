@@ -73,7 +73,7 @@ async def get_current_user(Authorization: str = Header(None)):
     return user
 
 
-# ---------- Dashboard ----------
+
 @router.get("/dashboard")
 async def dashboard(user: dict = Depends(get_current_user)):
     workouts = user.get("workouts", [])
@@ -86,7 +86,6 @@ async def dashboard(user: dict = Depends(get_current_user)):
     }
 
 
-# ---------- Set Persona ----------
 @router.post("/set_persona")
 async def set_persona(data: PersonaChoice, user: dict = Depends(get_current_user)):
     persona = data.persona
