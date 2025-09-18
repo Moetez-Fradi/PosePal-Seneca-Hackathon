@@ -84,7 +84,7 @@ def _call_openrouter(prompt: str, persona: str) -> str:
                         "1) praise/motivation, "
                         "2) one actionable cue, "
                         "3) a target for next set. "
-                        "Avoid emojis. Keep under 40 words. "
+                        "Avoid emojis. Keep under 40 words. Don't start with 'here are three sentences' or anything. Provide directly with the sentences. "
                         f"Style: {style}"
                     ),
                 },
@@ -95,7 +95,7 @@ def _call_openrouter(prompt: str, persona: str) -> str:
         return resp.choices[0].message.content.strip()
     except Exception as e:
         print("[LLM] fallback:", e)
-        return "Fallback: Keep your form tight and steady."
+        return "Keep your form tight and steady Queen! You got this."
 
 def _piper_tts(text: str, persona: str) -> str:
     piper_bin = shutil.which("piper-tts")

@@ -81,7 +81,7 @@
       const res = await authFetch(`${BASE}/workouts/flush`, { method: "POST" });
       if (!res) return;
       const data = await res.json();
-      alert(`✅ Saved ${data.saved || 0} workouts to DB`);
+      alert(`Saved ${data.saved || 0} workouts to DB`);
     }
 
     function requireAuth() {
@@ -128,7 +128,7 @@
         const data = await res.json();
 
         if (data.status === "ok") {
-          document.getElementById("status").innerText = `✅ Config set: ${data.exercise}`;
+          document.getElementById("status").innerText = `Config set: ${data.exercise}`;
           const videoEl = document.getElementById("video");
           const token = localStorage.getItem("access_token");
           videoEl.src = `${BASE}/video?token=${token}&t=` + new Date().getTime();
@@ -136,10 +136,10 @@
           startCuePolling();
           startFeedbackPolling();
         } else {
-          document.getElementById("status").innerText = "❌ " + data.msg;
+          document.getElementById("status").innerText = "" + data.msg;
         }
       } catch (err) {
-        document.getElementById("status").innerText = "❌ Failed to connect to backend.";
+        document.getElementById("status").innerText = "Failed to connect to backend.";
       }
     }
 
@@ -149,7 +149,7 @@
         if (!res) return;
         const data = await res.json();
         if (data.url) {
-          console.log("🎧 Cue:", data);
+          console.log("Cue:", data);
           audioEl.src = BASE + data.url;
           audioEl.play();
         }
@@ -168,7 +168,7 @@
         if (!res) return;
         const data = await res.json();
         if (data.audio_url) {
-          console.log("📣 Feedback:", data.text);
+          console.log("Feedback:", data.text);
           const a = new Audio(BASE + data.audio_url);
           a.play();
         } else {
