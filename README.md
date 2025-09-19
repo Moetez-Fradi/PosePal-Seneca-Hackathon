@@ -1,6 +1,6 @@
 # 🏋️ Posepal – Your AI-Powered Personal Coach  
 
-**Posepal** is an AI fitness coach and Movement Analyzer that uses **computer vision** and **real-time feedback** to guide your workouts, track your form, and keep you motivated — all inside your browser.  
+**Posepal** is an AI fitness coach and Movement Analyzer that uses **computer vision** and **real-time feedback** to guide your workouts, track your form, and keep you motivated, all inside your browser.  
 
 ## Why Posepal Stands Out
 
